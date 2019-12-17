@@ -1,0 +1,6 @@
+deps
+objs
+main
+a.out
+*.ppm
+.vscode

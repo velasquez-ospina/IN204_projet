@@ -1,0 +1,76 @@
+{
+	"lights": [
+		{
+			"type": "sun",
+			"position": "1 1 -1",
+			"color": "255 255 255"
+		}
+	],
+	"objects": [
+		{
+			"type": "obj",
+			"path": "./objects/chair.obj",
+			"color": "245 245 220",
+			"opacity": 1,
+			"reflexitivity": 0,
+			"translation": "-1 -1 -0.6",
+			"rotation": "90 0 90"
+		},
+		{
+			"type": "triangle",
+			"positions": [
+				"10000 10000 -1.5",
+				"10000 -10000 -1.5",
+				"-10000 0 -1.5"
+			],
+			"color": "255 245 238",
+			"opacity": 1,
+			"reflexitivity": 0,
+			"translation": "0 0 0",
+			"rotation": "0 0 0"
+		},
+		{
+			"type": "triangle",
+			"positions": [
+				"4 2 3",
+				"4 2 -1",
+				"2 3.5 3"
+			],
+			"color": "255 50 50",
+			"opacity": 1,
+			"reflexitivity": 1,
+			"translation": "0 0 0",
+			"rotation": "0 0 0"
+		},
+		{
+			"type": "triangle",
+			"positions": [
+				"4 2 -1",
+				"2 3.5 3",
+				"2 3.5 -1"
+			],
+			"color": "255 50 50",
+			"opacity": 1,
+			"reflexitivity": 1,
+			"translation": "0 0 0",
+			"rotation": "0 0 0"
+		}
+	],
+	"camera": {
+		"position": "-2 0 0",
+		"direction": "1 0 0",
+		"dist_normal": 1
+	},
+	"engine": {
+		"screen_height": 500,
+		"screen_width": 500,
+		"field_of_vue": 70,
+		"top_dir": "0 0 1",
+		"pixels_offset": [
+			"0.5 0.5"
+		],
+		"recursion_level": 3,
+		"env_diffusion": 0.2,
+		"output_name": "results/chair"
+	}
+}

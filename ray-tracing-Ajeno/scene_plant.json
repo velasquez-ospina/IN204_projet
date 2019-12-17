@@ -1,0 +1,66 @@
+{
+	"lights": [
+		{
+			"type": "sun",
+			"position": "1 1 -2",
+			"color": "255 255 255"
+		}
+	],
+	"objects": [
+		{
+			"type": "obj",
+			"path": "./objects/plant.obj",
+			"color": "245 245 220",
+			"enabled_uv": true,
+			"enabled_smooth": true,
+			"texture_path": "./textures/plant_col.png",
+			"opacity": 1,
+			"reflexitivity": 0,
+			"translation": "5 -2 0.7",
+			"rotation": "90 0 180"
+		},
+		{
+			"type": "triangle",
+			"positions": [
+				"8 10000 10000",
+				"8 -10000 10000",
+				"8 0 -10000"
+			],
+			"color": "232 225 214",
+			"opacity": 1,
+			"reflexitivity": 0,
+			"translation": "0 0 0",
+			"rotation": "0 0 0"
+		},
+		{
+			"type": "triangle",
+			"positions": [
+				"10000 10000 -1.5",
+				"10000 -10000 -1.5",
+				"-10000 0 -1.5"
+			],
+			"color": "232 225 214",
+			"opacity": 1,
+			"reflexitivity": 0,
+			"translation": "0 0 0",
+			"rotation": "0 0 0"
+		}
+	],
+	"camera": {
+		"position": "-2 0 2",
+		"direction": "1 0 0",
+		"dist_normal": 1
+	},
+	"engine": {
+		"screen_height": 80,
+		"screen_width": 80,
+		"field_of_vue": 70,
+		"top_dir": "0 0 1",
+		"pixels_offset": [
+			"0.5 0.5"
+		],
+		"recursion_level": 1,
+		"env_diffusion": 0.5,
+		"output_name": "results/plant"
+	}
+}

@@ -1,0 +1,66 @@
+{
+	"lights": [
+		{
+			"type": "sun",
+			"position": "1 1 -2",
+			"color": "255 255 255"
+		}
+	],
+	"objects": [
+		{
+			"type": "obj",
+			"path": "./objects/snipe.obj",
+			"color": "0 0 220",
+			"texture_path": "./textures/snipe.png",
+			"enabled_uv": true,
+			"enabled_smooth": true,
+			"opacity": 1,
+			"reflexitivity": 0,
+			"translation": "80 20 7",
+			"rotation": "105 0 -40"
+		},
+		{
+			"type": "triangle",
+			"positions": [
+				"140 10000 10000",
+				"140 -10000 10000",
+				"140 0 -10000"
+			],
+			"color": "232 225 214",
+			"opacity": 1,
+			"reflexitivity": 0,
+			"translation": "0 0 0",
+			"rotation": "0 0 0"
+		},
+		{
+			"type": "triangle",
+			"positions": [
+				"10000 10000 -18",
+				"10000 -10000 -18",
+				"-10000 0 -18"
+			],
+			"color": "232 225 214",
+			"opacity": 1,
+			"reflexitivity": 0,
+			"translation": "0 0 0",
+			"rotation": "0 0 0"
+		}
+	],
+	"camera": {
+		"position": "0 0 0",
+		"direction": "1 0 0",
+		"dist_normal": 1
+	},
+	"engine": {
+		"screen_height": 400,
+		"screen_width": 400,
+		"field_of_vue": 80,
+		"top_dir": "0 0 1",
+		"pixels_offset": [
+			"0.5 0.5"
+		],
+		"recursion_level": 1,
+		"env_diffusion": 0.5,
+		"output_name": "results/snipe"
+	}
+}
