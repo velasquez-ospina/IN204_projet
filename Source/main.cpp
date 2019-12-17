@@ -51,3 +51,5 @@ int main(){
     normalize_pixels(Width,Height);
     return 0;
 }
+
+//ooiii
