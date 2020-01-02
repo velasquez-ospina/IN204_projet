@@ -1,3 +1,6 @@
+#ifndef _CLASSES_HPP
+#define _CLASSES_HPP
+
 #include <iostream>
 
 class Vect{
@@ -9,7 +12,7 @@ class Vect{
     Vect(double px, double py): x(px), y(py), z(0){}
     Vect(double px, double py, double pz): x(px), y(py), z(pz){}
 
-    ~Vect();
+    ~Vect(){}
 
     //get functions
     double getVectX() {return x;}
@@ -50,7 +53,7 @@ class Ray{
     Ray():origin(0,0,0), direction(1,0,0){}
     Ray(Vect adirection): origin(0,0,0), direction(adirection){}
     Ray(Vect adirection, Vect anorigin): origin(anorigin), direction(adirection){}
-    ~Ray();
+    ~Ray(){}
 
     Vect getRayOrigin() {return origin;}
     Vect getRayVector() {return direction;}
@@ -69,7 +72,7 @@ class Camera{
     Camera(Vect acampos, Vect acamdir):campos(acampos), camdir(acamdir), camright(0,0,0), camdown(0,0,0){}
     Camera(Vect acampos, Vect acamdir, Vect acamright):campos(acampos), camdir(acamdir), camright(acamright), camdown(0,0,0){}
     Camera(Vect acampos, Vect acamdir, Vect acamright, Vect acamdown):campos(acampos), camdir(acamdir), camright(acamright), camdown(acamdown){}
-    ~Camera();
+    ~Camera(){}
 
     Vect getCameraPosition() {return campos;}
     Vect getCameraDirection() {return camdir;}
@@ -78,14 +81,14 @@ class Camera{
 
 };
 
-class color{
+class Color{
     double red, green, blue, special; //the special value will represent reflectiveness of the surface
 
     public:
 
     //constructors
-    color():red(0.5),green(0.5),blue(0.5){}
-    color(double ared, double agreen, double ablue, double aspecial):red(ared), green(agreen), blue(ablue), special(aspecial){}
+    Color():red(0.5),green(0.5),blue(0.5){}
+    Color(double ared, double agreen, double ablue, double aspecial):red(ared), green(agreen), blue(ablue), special(aspecial){}
 
     //get functions
     double getColorRed() {return red;}
@@ -103,18 +106,51 @@ class color{
 
 class light{
         Vect position;
-        color Color;
+        Color color;
 
 
 
     public:
-    light():position(0,0,0), Color(1,1,1,0){}
-    light(Vect aposition): position(aposition), Color(1,1,1,0){}
-    light(Vect aposition, color acolor): position(aposition), Color(acolor){}
-    ~light();
+    light():position(0,0,0), color(1,1,1,0){}
+    light(Vect aposition): position(aposition), color(1,1,1,0){}
+    light(Vect aposition, Color acolor): position(aposition), color(acolor){}
+    ~light(){}
 
     Vect getLightPosition() {return position;}
-    color getLightColor() {return Color;}
+    Color getLightColor() {return color;}
+
+};
+
+class Object{
+    public:
+
+    Object(){}
+    ~Object(){}
+
+
+    //Method functions
+    Color getObjectColor () {return Color ( 0.0, 0.0, 0.0, 0);} // this is meant for shadows
+    double findIntersection(Ray ray) {
+        return 0;
+    }
+
+};
+
+class Sphere: public Object{
+    Vect center;
+    double radius;
+    Color color;
+
+    public:
+        Vect getSphereCenter(){return center;}
+        double getSphereRadius(){return radius;}
+        Color getSphereColor(){return color;}
+
+        ~Sphere(){}
+        Sphere():center(0,0,0), radius(1), color(0.5,0.5,0.5,0){}
+        Sphere(Vect aCenter):center(aCenter), radius(1.0), color(0.5,0.5,0.5,0){}
+        Sphere(Vect aCenter, double aRadius):center(aCenter), radius(aRadius), color(1,1,1,0){}
+        Sphere(Vect aCenter, double aRadius, Color aColor):center(aCenter), radius(aRadius), color(aColor){}
 
 };
 
@@ -125,3 +161,5 @@ struct RGBType{
 
     
 };
+
+#endif //_CLASSES_HPP

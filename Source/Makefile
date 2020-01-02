@@ -1,12 +1,9 @@
-OBJ =  main.o
-INC = -I "./"
 
-PROJET: $(OBJ)
-    g++ $(OBJ) -o PROJET.exe
-    rm -f $(OBJ)
+output: main.o
+	g++ main.o -o output 
 
-main.o:
-    g++ -c main.cpp $(INC)
+main.o: main.cpp
+	g++ -c main.cpp
 
 clean:
-    rm -f $(OBJ) PROJET
+	rm *.o output Scene.bmp
