@@ -2,7 +2,7 @@
 #define _PLANE_HPP
 
 #include "math.h"
-#include "classes.hpp"
+#include "Object.hpp"
 
 class Plane : public Object {
     Vect normal;
