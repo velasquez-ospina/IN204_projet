@@ -17,17 +17,14 @@
 #include "light.hpp"
 #include "Object.hpp"
 #include "Sphere.hpp"
-using namespace std;
 
-//For more information about the function normalize_pixels
-//https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays
+using namespace std;
 
 struct RGBType{
     double r;
     double g;
     double b; 
 };
-
 
 void savebmp (const char *filename, int w, int h, int dpi, RGBType *data ){
     FILE *f;
@@ -80,7 +77,6 @@ void savebmp (const char *filename, int w, int h, int dpi, RGBType *data ){
     fwrite(bmpinfoheader,1,40,f);
 
     for (int i = 0; i<k; i++) {
-        RGBType rgb = data[i];
 
         double red = (data[i].r)*255;
         double green = (data[i].g)*255;
@@ -101,6 +97,7 @@ int main(int argc, char *argv[]){
 
     int Width=640, Height=480, dpi = 72;
     int n = Width*Height;
+    int aspect_ratio= double(Width)/(double)Height;
     RGBType *pixels = new RGBType[n];
 
     //coordinate system
@@ -113,21 +110,22 @@ int main(int argc, char *argv[]){
 
     //Camera deffinition
     Vect campos (3, 1.5, -4);
-
     Vect look_at (0,0,0);
     Vect diff_btw (campos.getVectX() - look_at.getVectX(),campos.getVectY() - look_at.getVectY(),campos.getVectZ()-look_at.getVectZ());
     Vect camdir = diff_btw.negative().normalize();
-
     Vect camright = Y.crossproduct(camdir).normalize();
     Vect camdown = camright.crossproduct(camdir);
+
     Camera scene_cam (campos, camdir, camright, camdown);
  
+    //Colors
     Color white_light (1.0,1.0,1.0,0);
     Color pretty_green (0.5,1,0.5,0.3);
     Color gray (0.5, 0.5, 0.5, 0);
     Color black (0,0,0,0);
     Color maroon (0.5, 0.25, 0,0);
 
+    //Light definition
     Vect light_position (-7,10,-10);
     light scene_light (light_position, white_light);
 
@@ -153,6 +151,7 @@ int main(int argc, char *argv[]){
         
     }
     
+    //Save the image as "Scene.bmp"
     savebmp("Scene.bmp",Width,Height,dpi,pixels);
 
     return 0;

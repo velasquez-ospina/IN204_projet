@@ -5,21 +5,24 @@
 
 
 class Color{
-    double red, green, blue, special; //the special value will represent reflectiveness of the surface
+
+    private:
+
+        double red, green, blue, special; //the special value will represent reflectiveness of the surface
 
     public:
 
-    //constructors
+    //Constructors
     Color():red(0.5),green(0.5),blue(0.5){}
     Color(double ared, double agreen, double ablue, double aspecial):red(ared), green(agreen), blue(ablue), special(aspecial){}
 
-    //get functions
+    //Get functions
     double getColorRed() {return red;}
     double getColorGreen() {return green;}
     double getColorBlue() {return blue;}
     double getColorSpecial() {return special;}
 
-    //set functions
+    //Set functions
     double setColorRed(double ared) {red = ared;}
     double setColorGreen(double agreen) {green = agreen;}
     double setColorBlue(double ablue) {blue = ablue;}
