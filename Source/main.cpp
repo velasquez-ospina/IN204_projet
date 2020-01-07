@@ -113,13 +113,13 @@ void savebmp (const char *filename, int w, int h, int dpi, RGBType *data ){
         double green = (data[i].g)*255;
         double blue = (data[i].b)*255;
 
-        unsigned char color[3] = {(int)floor(blue),(int)floor(green),(int)floor(red)};
+        unsigned char color[3] = {(unsigned char)floor(blue),(unsigned char)floor(green),(unsigned char)floor(red)};
 
         fwrite(color,1,3,f);
 
     }
 
-    fclose(f);
+    //fclose(f);
 }
 
 int thisone;
@@ -171,9 +171,9 @@ int main(int argc, char *argv[]){
         {
             thisone = y*Width + x;      //determine coordenates of an individual pixel
             if((x > 0 && x < 255) && (y > 0 &&  y < 255)){
-                pixels[thisone].r = x;
+                pixels[thisone].r = 0;
                 pixels[thisone].g = y;
-                pixels[thisone].b = 255;
+                pixels[thisone].b = x;
             }
 
         }
