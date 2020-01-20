@@ -188,8 +188,8 @@ int main(int argc, char *argv[]){
 
     //scene objects
 
-    Sphere scene_sphere (O, 1.3, pretty_green);
-    Plane scene_plane (Y, -5, maroon);
+    Sphere scene_sphere (O, 1, pretty_green);
+    Plane scene_plane (Y, 0, maroon);
 
     //vector to store the objects of the scene nad loop through them
     vector<Object*> scene_objects;
@@ -233,12 +233,12 @@ int main(int argc, char *argv[]){
             //Loop through each of the objects in our scene and determine if there are any intersections
             for (int index = 0; index < scene_objects.size(); index++){
                 intersections.push_back(scene_objects.at(index)->findIntersection(cam_ray));    //Asks if there are any intersections between the objects and the ray and stores it
-                //cout << scene_objects.at(index)->findIntersection(cam_ray) << endl;
+                cout << scene_objects.at(index)->findIntersection(cam_ray) << endl;
             }
 
             //now we need to find the closest object to the camera
             int index_of_winning_object = winningObjectIndex(intersections);
-            //cout << index_of_winning_object;
+            //cout << index_of_winning_object << " ";
 
             if (index_of_winning_object == -1) {
                 //if the ray miss, put the color of the background which is black

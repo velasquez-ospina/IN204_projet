@@ -38,12 +38,13 @@ class Plane : public Object {
                 return -1;
             }
             else{
+                //double b = distance-normal.dotProduct(ray.getRayOrigin());
                 double b = normal.dotProduct(ray.getRayOrigin().vectAdd(normal.vectMul(distance).negative()));
                 return -1*b/a;
             }
         }
         void ShowMe(){
-            std::cout << "This is the sphere in: ( " << normal.getVectX() << "," << normal.getVectY() << "," << normal.getVectZ()
+            std::cout << "This is the plane in: ( " << normal.getVectX() << "," << normal.getVectY() << "," << normal.getVectZ()
              << " ) with the distance : " << distance << std::endl;
         }
 };

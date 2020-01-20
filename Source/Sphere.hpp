@@ -49,8 +49,8 @@ class Sphere: public Object{
             double ray_origin_x = ray_origin.getVectX();
             double ray_origin_y = ray_origin.getVectY();
             double ray_origin_z = ray_origin.getVectZ();
-
-            Vect ray_direction = ray.getRayOrigin();
+  
+            Vect ray_direction = ray.getRayDirection();
             double ray_direction_x = ray_direction.getVectX();
             double ray_direction_y = ray_direction.getVectY();
             double ray_direction_z = ray_direction.getVectZ();
