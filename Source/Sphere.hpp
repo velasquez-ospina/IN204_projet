@@ -28,15 +28,18 @@ class Sphere: public Object{
         //Get functions
         Vect getSphereCenter(){return center;}
         double getSphereRadius(){return radius;}
-        Color getSphereColor(){return color;}
+        Color getColor(){return color;}
 
+
+
+        //Method functions
         Vect getNormalAt(Vect point){
             //Remember normal always points away from the center of a sphere
             Vect normal_vect = point.vectAdd(center.negative()).normalize();
             return normal_vect;  
         }
 
-        //Method functions
+
         double findIntersection(Ray ray) {
             //returns a scalar value which is the distance between the origin of the ray to the point of intersection
             //So later we can use linear algebra to find the coordenates of the point of intersection and get the normal of the surface of the sphere in that coordenate
@@ -83,6 +86,9 @@ class Sphere: public Object{
                 //the ray missed the sphere
                 return -1;
             }
+        }
+        void ShowMe(){
+            std::cout << "This is the sphere in: ( " << center.getVectX() << "," << center.getVectY() << "," << center.getVectZ() << " ) with radius : " << radius << std::endl;
         }
 
 };

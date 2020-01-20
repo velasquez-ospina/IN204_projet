@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "Plane.hpp"
 #include "Vect.hpp"
@@ -101,21 +102,22 @@ int winningObjectIndex(vector<double> object_intersections){
         return -1;
     }
     else if(object_intersections.size() == 1){
-        if (object_intersections.at(0) > 0){
-            //if that intersection is greater than zero then its our index of minimum value
-            return 0; //remember 0 is the index, not the value
-        }
-        else {
-            //otherwise the only intersection is negative
-            return -1;
-        }
+            if (object_intersections.at(0) > 0){
+                //if that intersection is greater than zero then its our index of minimum value
+                return 0; //remember 0 is the index, not the value
+            }
+            else {
+                //otherwise the only intersection is negative
+                return -1;
+            }
     }
     else {
+
         //otherwise there is more than one intersection
 
         //ESTO SE PUEDE MEJORAR...
 
-        //first find the maximum valUE
+        //first find the maximum value
         double max=0;
         for (int i = 0; i < object_intersections.size(); i++){
             if (max < object_intersections.at(i)) {
@@ -123,19 +125,23 @@ int winningObjectIndex(vector<double> object_intersections){
             }
         }
         //then starting from the maximum value find the minimum positive value
-
         if(max > 0) {
             //we only want positive intersections
+            index_of_minimum_value = 0;
             for (int index = 0; index < object_intersections.size(); index++){
-                if (object_intersections.at(index) < object_intersections.at(max) && object_intersections.at(index)>0) {
+                
+                if (object_intersections.at(index) <= max && object_intersections.at(index)>0) {
+                
                     max = object_intersections.at(index);
                     index_of_minimum_value = index;
+
                 }
             }
             return index_of_minimum_value;
         }
         else {
             //all the intersections were negative
+
             return -1;
         }
     }
@@ -182,8 +188,8 @@ int main(int argc, char *argv[]){
 
     //scene objects
 
-    Sphere scene_sphere (O, 1, pretty_green);
-    Plane scene_plane (Y, -1, maroon);
+    Sphere scene_sphere (O, 1.3, pretty_green);
+    Plane scene_plane (Y, -5, maroon);
 
     //vector to store the objects of the scene nad loop through them
     vector<Object*> scene_objects;
@@ -193,7 +199,6 @@ int main(int argc, char *argv[]){
     scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
 
     double xamnt, yamnt;    //this variables are to allow the rays to go to the sides where the camera is pointing
-
     // Nested loops to give each pixel a color
     for (int x = 0; x < Width; x++)     
     {
@@ -223,23 +228,30 @@ int main(int argc, char *argv[]){
             Vect cam_ray_direction = camdir.vectAdd(camright.vectMul(xamnt - 0.5).vectAdd(camdown.vectMul(yamnt - 0.5))).normalize();
 
             Ray cam_ray (cam_ray_origin, cam_ray_direction);
-
+            //cam_ray.ShowMe();
             vector<double> intersections;   //vector that stores the intersections
-
             //Loop through each of the objects in our scene and determine if there are any intersections
             for (int index = 0; index < scene_objects.size(); index++){
                 intersections.push_back(scene_objects.at(index)->findIntersection(cam_ray));    //Asks if there are any intersections between the objects and the ray and stores it
+                //cout << scene_objects.at(index)->findIntersection(cam_ray) << endl;
             }
 
             //now we need to find the closest object to the camera
-
             int index_of_winning_object = winningObjectIndex(intersections);
+            //cout << index_of_winning_object;
 
-
-            if((x > 0 && x < 255) && (y > 0 &&  y < 255)){
-                pixels[thisone].r = y;
+            if (index_of_winning_object == -1) {
+                //if the ray miss, put the color of the background which is black
+                pixels[thisone].r = 0;
                 pixels[thisone].g = 0;
-                pixels[thisone].b = x;
+                pixels[thisone].b = 0;
+            }
+            else {
+                //index coresponds to an object in our scene
+                Color this_color = scene_objects.at(index_of_winning_object)->getColor();
+                pixels[thisone].r = this_color.getColorRed();
+                pixels[thisone].g = this_color.getColorGreen();
+                pixels[thisone].b = this_color.getColorBlue();
             }
 
         }

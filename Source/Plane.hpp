@@ -24,14 +24,14 @@ class Plane : public Object {
         //Get functions
         Vect getPlaneNormal () {return normal;}
         double getPlaneDistance () {return distance;}
-        Color getPlaneColor () {return color;}
+        Color getColor () {return color;}
 
         //Method functions
         Vect getNormalAt (Vect point){
                 return normal;
         }
         double findIntersection(Ray ray) {
-            Vect ray_direction = ray.getRayVector();
+            Vect ray_direction = ray.getRayDirection();
             double a = ray_direction.dotProduct(normal);
             if (a== 0) {
                 //ray is parallel to the plane
@@ -41,6 +41,10 @@ class Plane : public Object {
                 double b = normal.dotProduct(ray.getRayOrigin().vectAdd(normal.vectMul(distance).negative()));
                 return -1*b/a;
             }
+        }
+        void ShowMe(){
+            std::cout << "This is the sphere in: ( " << normal.getVectX() << "," << normal.getVectY() << "," << normal.getVectZ()
+             << " ) with the distance : " << distance << std::endl;
         }
 };
 

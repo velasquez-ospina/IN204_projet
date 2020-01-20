@@ -8,7 +8,7 @@ class Camera{
 
     private:
 
-        Vect campos, camdir, camright, camdown; 
+        Vect campos, camdir, camright, camdown;     //camright and camdown with camdir make a coordenate system in the camera position
 
     public:
         //Constructors
