@@ -3,9 +3,10 @@
 
 #include <iostream>
 #include "Vect.hpp"
+#include "Source.hpp"
 #include "Color.hpp"
 
-class light{
+class light : public Source{
 
     private:
 
@@ -21,8 +22,8 @@ class light{
         ~light(){}
         
         //Method functions
-        Vect getLightPosition() {return position;}
-        Color getLightColor() {return color;}
+        virtual Vect getLightPosition() {return position;}
+        virtual Color getLightColor() {return color;}
 
 };
 #endif // _LIGHT_HPP

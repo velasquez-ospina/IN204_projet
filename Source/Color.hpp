@@ -28,5 +28,26 @@ class Color{
     double setColorBlue(double ablue) {blue = ablue;}
     double setColorSpecial(double aspecial) {special = aspecial;}
 
+    double brightness(){
+        return (red +  green + blue)/3;
+    }
+
+    //scales color values by a factor
+    Color colorScalar (double scalar){
+        return Color (red*scalar, green*scalar, blue*scalar, special);
+    }
+
+    //combines two colors together
+    Color colorAdd(Color color){
+        return Color(red + color.getColorRed(), green + color.getColorGreen(), blue + color.getColorBlue(), special);
+    }
+
+    Color colorMultiply (Color color){
+        return Color(red * color.getColorRed()/2, green * color.getColorGreen()/2, blue*color.getColorBlue()/2, special);    
+    }
+
+    Color colorAverage(Color color){
+        return Color(red + color.getColorRed()/2, green + color.getColorGreen()/2, blue+color.getColorBlue()/2, special);
+    }
 };
 #endif // _COLOR_HPP
