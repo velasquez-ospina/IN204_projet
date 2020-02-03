@@ -50,4 +50,4 @@ class Color{
         return Color(red + color.getColorRed()/2, green + color.getColorGreen()/2, blue+color.getColorBlue()/2, special);
     }
 };
-#endif // _COLOR_HPP
+#endif //COLOR_HPP
