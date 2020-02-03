@@ -153,8 +153,11 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
     
     Color winning_object_color = scene_objects.at(index_of_winning_object)->getColor();
     Vect winning_object_normal = scene_objects.at(index_of_winning_object)->getNormalAt(intersection_position);
+    
     Color final_color = winning_object_color.colorScalar(ambientlight);
+
     for(int light_index = 0; light_index < light_sources.size(); light_index++){
+        
         Vect light_direction = light_sources.at(light_index)->getLightPosition().vectAdd(intersection_position.negative()).normalize();
 
         float cosine_angle = winning_object_normal.dotProduct(light_direction);
@@ -163,13 +166,16 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
             //test for shadows
             bool shadowed = false;
             Vect distance_to_light = light_sources.at(light_index)->getLightPosition().vectAdd(intersection_position.negative()).normalize();
+           
             float distance_to_light_magnitude = distance_to_light.magnitude();
             Ray shadow_ray (intersection_position, light_sources.at(light_index)->getLightPosition().vectAdd(intersection_position.negative()).normalize());
+            
             vector<double> secondary_intersections;
+            
             for (int object_index = 0; object_index<scene_objects.size() && shadowed == false; object_index++){
                 secondary_intersections.push_back(scene_objects.at(object_index)->findIntersection(shadow_ray));
             } 
-
+            //creates shadows in objects
             for (int c = 0; c < secondary_intersections.size(); c++){
                 if (secondary_intersections.at(c) > accuracy){
                     if (secondary_intersections.at(c) <= distance_to_light_magnitude){
@@ -292,7 +298,7 @@ int main(int argc, char *argv[]){
             //Loop through each of the objects in our scene and determine if there are any intersections
             for (int index = 0; index < scene_objects.size(); index++){
                 intersections.push_back(scene_objects.at(index)->findIntersection(cam_ray));    //Asks if there are any intersections between the objects and the ray and stores it
-                cout << scene_objects.at(index)->findIntersection(cam_ray) << endl;
+                //cout << scene_objects.at(index)->findIntersection(cam_ray) << endl;
             }
 
             //now we need to find the closest object to the camera
