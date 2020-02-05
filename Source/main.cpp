@@ -10,6 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <omp.h>
+#include <chrono>
 
 #include "Plane.hpp"
 #include "Vect.hpp"
@@ -20,6 +21,16 @@
 #include "Source.hpp"
 #include "Object.hpp"
 #include "Sphere.hpp"
+
+/*
+  std::chrono::time_point < std::chrono::system_clock > start, end;
+  start = std::chrono::system_clock::now();
+
+  end = std::chrono::system_clock::now();
+  std::chrono::duration < double >elapsed_seconds = end - start;
+  std::cout << "Temps dans le boucle : " << elapsed_seconds.count() << " secondes\n";
+
+*/
 
 using namespace std;
 
@@ -116,9 +127,6 @@ int winningObjectIndex(vector<double> object_intersections){
     else {
 
         //otherwise there is more than one intersection
-
-        //ESTO SE PUEDE MEJORAR...
-
         //first find the maximum value
         double max=0;
         for (int i = 0; i < object_intersections.size(); i++){
@@ -157,7 +165,7 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
     
     if (winning_object_color.getColorSpecial() == 2){
         //checkered/tile floor pattern
-        //Para que esto funcione se debe cambiar la propiedad especial del color del plano
+        //we give the special atribute 2 the property of being a black and white floor pattern
 
         int square = (int)floor(intersection_position.getVectX()) + (int)floor(intersection_position.getVectZ()); 
 
@@ -178,6 +186,7 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
 
     if (winning_object_color.getColorSpecial() > 0 && winning_object_color.getColorSpecial() <= 1){
         // reflection from objects with specular intensity
+
         double dot1 = winning_object_normal.dotProduct(intersecting_ray_direction.negative());
         Vect scalar1 = winning_object_normal.vectMul(dot1);
         Vect add1 = scalar1.vectAdd(intersecting_ray_direction);
@@ -269,7 +278,7 @@ int thisone;
 
 int main(int argc, char *argv[])
 {
-
+    std::chrono::time_point < std::chrono::system_clock > start, end;
     int Width=1000, Height=700, dpi = 72;
     int n = Width*Height;
     double aspect_ratio= double(Width)/(double)Height;
@@ -329,6 +338,8 @@ int main(int argc, char *argv[])
     
     // Nested loops to give each pixel a color
     //#pragma omp parallel for
+
+
     for (int x = 0; x < Width; x++)     
     {
         for (int y = 0; y < Height; y++)
@@ -393,7 +404,6 @@ int main(int argc, char *argv[])
                     Vect cam_ray_direction = camdir.vectAdd(camright.vectMul(xamnt - 0.5).vectAdd(camdown.vectMul(yamnt - 0.5))).normalize();
 
                     Ray cam_ray (cam_ray_origin, cam_ray_direction);
-                    //cam_ray.ShowMe();
                     vector<double> intersections;   //vector that stores the intersections
                     //Loop through each of the objects in our scene and determine if there are any intersections
                     for (int index = 0; index < scene_objects.size(); index++){
@@ -454,7 +464,7 @@ int main(int argc, char *argv[])
             pixels[thisone].b = avgblue;
         }
     }    
-    //Save the image as "Scene.bmp"
+    //Save the image
     savebmp("Scene_no_aliasing.bmp",Width,Height,dpi,pixels);
 
     delete pixels;
