@@ -20,8 +20,11 @@
 #include "Source.hpp"
 #include "Object.hpp"
 #include "Sphere.hpp"
+#include "json11.hpp"
+#include "argh.hpp"
 
 using namespace std;
+using namespace json11;
 
 struct RGBType{
     double r;
@@ -267,8 +270,92 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
 
 int thisone;
 
+Vect stringToVector(string str)
+{
+	stringstream ss(str);
+	double x, y, z;
+	ss >> x >> y >> z;
+	Vect v(x, y, z);
+	return v;
+}
+
+Color stringToColor(string str)
+{
+	stringstream ss(str);
+	double r, g, b, s;
+	ss >> r >> g >> b >> s;
+	Color color = {(double)r, (double)g, (double)b, (double)s};
+	return color;
+}
+
+class Scene{
+    public:
+    std::vector <Source*> light_sources;
+    std::vector <Object*> scene_objects;
+};
+
+Scene jsonReader (string path){
+    std::vector <Source*> light_sources;
+    std::vector <Object*> scene_objects;
+    Scene S;
+
+    light_sources.clear();
+    scene_objects.clear();
+    
+    ifstream t(path);
+	string str((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
+    std::cout << path << '\n';
+	string err;
+	Json scene_json = Json::parse(str, err);
+    //read array of lights
+	Json::array lights_json = scene_json["lights"].array_items();
+    std::cout <<"num de luzes : " << lights_json.size() << '\n';
+	for (size_t i = 0; i < lights_json.size(); i++){
+        
+		Vect position = stringToVector(lights_json[i]["position"].string_value());
+		Color color = stringToColor(lights_json[i]["color"].string_value());
+
+		string type = lights_json[i]["type"].string_value();
+		light *L = new light (position, color);
+
+		light_sources.push_back(dynamic_cast<Source*>(L));
+	}
+
+    //reads array of objects
+    Json::array objects_json = scene_json["objects"].array_items();
+	std::cout <<"num de objetos : " << objects_json.size() << '\n';
+    for (size_t i = 0; i < objects_json.size(); i++){
+
+		Color color = stringToColor(objects_json[i]["color"].string_value());
+		string type = objects_json[i]["type"].string_value();
+
+		if (type == "sphere"){
+			Vect center = stringToVector(objects_json[i]["center"].string_value());
+			float radius = objects_json[i]["radius"].number_value();
+
+			Sphere *S = new Sphere (center, radius, color);
+			scene_objects.push_back(dynamic_cast<Object*>(S));
+		}
+        else if (type == "plan"){
+            Vect normal = stringToVector(objects_json[i]["normal"].string_value());
+            double distance = objects_json[i]["distance"].number_value();
+            Plane *P = new Plane(normal, distance, color);
+            scene_objects.push_back(dynamic_cast<Object*>(P));
+        }
+		
+    }
+    S.light_sources = light_sources;
+    S.scene_objects = scene_objects;
+    return S;
+
+}
 int main(int argc, char *argv[])
 {
+    argh::parser cmdl(argv);
+
+	std::string path;
+	cmdl({"-s", "--scene"}, "scene.json") >> path;
+
 
     int Width=1000, Height=700, dpi = 72;
     int n = Width*Height;
@@ -305,24 +392,30 @@ int main(int argc, char *argv[])
     Color maroon (0.5, 0.25, 0,2);
 
     //Light definition
-    Vect light_position (-7,10,-10);
-    light scene_light (light_position, white_light);
+    //Vect light_position (-7,10,-10);
+    //light scene_light (light_position, white_light);
     vector <Source*> light_sources;
-    light_sources.push_back(dynamic_cast<Source*>(&scene_light));
+    //light_sources.push_back(dynamic_cast<Source*>(&scene_light));
 
     //scene objects
-    Sphere scene_sphere (O, 1, pretty_green);
-    Sphere scene_sphere_2 (X.vectMul(3), 1, steel);
-    Plane scene_plane (Y, -1, maroon);
+    //Sphere scene_sphere (O, 1, pretty_green);
+    //Sphere scene_sphere_2 (X.vectMul(3), 1, steel);
+    //Plane scene_plane (Y, -1, maroon);
 
     //vector to store the objects of the scene nad loop through them
     vector<Object*> scene_objects;
 
+    //std::cout << scene_objects.size() << '\n';
+    Scene S = jsonReader(path);
+    light_sources = S.light_sources;
+    scene_objects = S.scene_objects;
+    std::cout << "objetos adicionados: " << scene_objects.size() << '\n';
+    /*
     //this is how we add objects to the vector
     scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
     scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere_2));
     scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
-
+    */
     int thisone, aa_index;
     double xamnt, yamnt;    //this variables are to allow the rays to go to the sides where the camera is pointing
     double tempRed, tempGreen, tempBlue;
@@ -396,8 +489,10 @@ int main(int argc, char *argv[])
                     //cam_ray.ShowMe();
                     vector<double> intersections;   //vector that stores the intersections
                     //Loop through each of the objects in our scene and determine if there are any intersections
+
                     for (int index = 0; index < scene_objects.size(); index++){
-                        intersections.push_back(scene_objects.at(index)->findIntersection(cam_ray));    //Asks if there are any intersections between the objects and the ray and stores it
+                        intersections.push_back(scene_objects.at(index)->findIntersection(cam_ray));
+                            //Asks if there are any intersections between the objects and the ray and stores it
                     }
 
                     //now we need to find the closest object to the camera
