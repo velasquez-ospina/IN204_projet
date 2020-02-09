@@ -555,7 +555,7 @@ int main(int argc, char *argv[])
     cmdl({"-s", "--scene"}, "scene.json") >> path;
 
     std::chrono::time_point < std::chrono::system_clock > start, end;
-    const int Width=700, Height=900, dpi = 72;
+    const int Width=600, Height=400, dpi = 72;
     float aspect_ratio= float(Width)/(float)Height;
     float ambientlight = 0.2;
     float accuracy = 0.0001;
