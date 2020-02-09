@@ -10,6 +10,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <omp.h>
+#include <chrono>
 
 #include "Plane.hpp"
 #include "Vect.hpp"
@@ -351,18 +352,22 @@ Scene jsonReader (string path){
 }
 int main(int argc, char *argv[])
 {
+
+    auto start = std::chrono::system_clock::now();
+
+
     argh::parser cmdl(argv);
 
 	std::string path;
 	cmdl({"-s", "--scene"}, "scene.json") >> path;
 
-
-    int Width=1000, Height=700, dpi = 72;
+    int increment = 1000;
+    int Width=500 + increment, Height=350 + increment, dpi = 72;
     int n = Width*Height;
     double aspect_ratio= double(Width)/(double)Height;
     double ambientlight = 0.2;
     double accuracy = 0.000001;
-    int aadepth = 4;        //aliasing
+    int aadepth = 1;        //aliasing
     double aathreshold = 0.1;   //aliasing
     RGBType *pixels = new RGBType[n];
 
@@ -389,20 +394,10 @@ int main(int argc, char *argv[])
     Color pretty_green (0.5,1,0.5,0.3);
     Color steel (0.5, 0.5, 0.5, 0.6);
     Color black (0,0,0,0);
-    Color maroon (0.5, 0.25, 0,2);
+    Color maroon (0.5, 0.25, 0, 2);
 
-    //Light definition
-    //Vect light_position (-7,10,-10);
-    //light scene_light (light_position, white_light);
     vector <Source*> light_sources;
-    //light_sources.push_back(dynamic_cast<Source*>(&scene_light));
 
-    //scene objects
-    //Sphere scene_sphere (O, 1, pretty_green);
-    //Sphere scene_sphere_2 (X.vectMul(3), 1, steel);
-    //Plane scene_plane (Y, -1, maroon);
-
-    //vector to store the objects of the scene nad loop through them
     vector<Object*> scene_objects;
 
     //std::cout << scene_objects.size() << '\n';
@@ -410,18 +405,13 @@ int main(int argc, char *argv[])
     light_sources = S.light_sources;
     scene_objects = S.scene_objects;
     std::cout << "objetos adicionados: " << scene_objects.size() << '\n';
-    /*
-    //this is how we add objects to the vector
-    scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
-    scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere_2));
-    scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
-    */
+
     int thisone, aa_index;
     double xamnt, yamnt;    //this variables are to allow the rays to go to the sides where the camera is pointing
     double tempRed, tempGreen, tempBlue;
     
     // Nested loops to give each pixel a color
-    //#pragma omp parallel for
+    #pragma omp parallel for schedule (dynamic) 
     for (int x = 0; x < Width; x++)     
     {
         for (int y = 0; y < Height; y++)
@@ -553,6 +543,11 @@ int main(int argc, char *argv[])
     savebmp("Scene_no_aliasing.bmp",Width,Height,dpi,pixels);
 
     delete pixels;
+
+    auto end = std::chrono::system_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << elapsed.count() << '\n';
+
 
     return 0;
 }

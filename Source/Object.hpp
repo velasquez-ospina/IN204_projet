@@ -7,7 +7,6 @@
 #include "Color.hpp"
 
 
-
 class Object{
 
     public:

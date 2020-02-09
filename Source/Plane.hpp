@@ -12,7 +12,7 @@ class Plane : public Object {
         double distance;
         Color color;
 
-    public:
+    public: 
 
         //Constructors
         Plane():normal(1,0,0), distance(1.0), color(0,0,0,0){};
