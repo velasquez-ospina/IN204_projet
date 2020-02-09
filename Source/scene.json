@@ -1,20 +1,32 @@
 {
 	"lights": [
 		{
-			"position": "0 -2 2",
-			"color": "255 255 255"
+			"position": "-7.0 10.0 -10.0",
+			"color": "1.0 1.0 1.0 0.0"
+		},
+		{
+			"position": " 7.0 10.0 10.0",
+			"color":"1.0 1.0 1.0 0.0"
 		}
 	],
 	"objects": [
 		{
 			"type": "sphere",
-			"center": "3 0 2.2",
-			"radius": 1,
-			"color": "0 0 255"
+			"center": "0.0 0.0 0.0",
+			"radius": 1.0,
+			"color": "0.5 1.0 0.5 0.3"
+		},
+		{
+			"type": "sphere",
+			"center": "3.0 0.0 0.0",
+			"radius": 1.0,
+			"color": "0.5 0.5 0.5 0.6"
+		},
+		{
+			"type": "plan",
+			"normal": "0.0 1.0 0.0",
+			"distance": -1.0,
+			"color": "0.5 0.25 0.2 2.0"
 		}
-	],
-	"camera": {
-		"position": "-2 0 0",
-		"lookat": "1 0 0"
-	}
+	]
 }

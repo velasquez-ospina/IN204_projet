@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-#include <omp.h>
+#include <mpi.h>
 #include <chrono>
 
 #include "Plane.hpp"
@@ -21,7 +21,8 @@
 #include "Source.hpp"
 #include "Object.hpp"
 #include "Sphere.hpp"
-
+#include "json11.hpp"
+#include "argh.hpp"
 /*
   std::chrono::time_point < std::chrono::system_clock > start, end;
   start = std::chrono::system_clock::now();
@@ -33,6 +34,7 @@
 */
 
 using namespace std;
+using namespace json11;
 
 struct RGBType{
     double r;
@@ -40,6 +42,85 @@ struct RGBType{
     double b; 
 };
 
+Vect stringToVector(string str)
+{
+	stringstream ss(str);
+	double x, y, z;
+	ss >> x >> y >> z;
+	Vect v(x, y, z);
+	return v;
+}
+
+Color stringToColor(string str)
+{
+	stringstream ss(str);
+	double r, g, b, s;
+	ss >> r >> g >> b >> s;
+	Color color = {(double)r, (double)g, (double)b, (double)s};
+	return color;
+}
+
+class Scene{
+    public:
+    std::vector <Source*> light_sources;
+    std::vector <Object*> scene_objects;
+};
+
+Scene jsonReader (string path){
+    std::vector <Source*> light_sources;
+    std::vector <Object*> scene_objects;
+    Scene S;
+
+    light_sources.clear();
+    scene_objects.clear();
+    
+    ifstream t(path);
+	string str((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
+    //std::cout << path << '\n';
+	string err;
+	Json scene_json = Json::parse(str, err);
+    //read array of lights
+	Json::array lights_json = scene_json["lights"].array_items();
+    //std::cout <<"num de luzes : " << lights_json.size() << '\n';
+	for (size_t i = 0; i < lights_json.size(); i++){
+        
+		Vect position = stringToVector(lights_json[i]["position"].string_value());
+		Color color = stringToColor(lights_json[i]["color"].string_value());
+
+		string type = lights_json[i]["type"].string_value();
+		light *L = new light (position, color);
+
+		light_sources.push_back(dynamic_cast<Source*>(L));
+	}
+
+    //reads array of objects
+    Json::array objects_json = scene_json["objects"].array_items();
+	//std::cout <<"num de objetos : " << objects_json.size() << '\n';
+    for (size_t i = 0; i < objects_json.size(); i++){
+
+		Color color = stringToColor(objects_json[i]["color"].string_value());
+		string type = objects_json[i]["type"].string_value();
+
+		if (type == "sphere"){
+			Vect center = stringToVector(objects_json[i]["center"].string_value());
+			float radius = objects_json[i]["radius"].number_value();
+
+			Sphere *S = new Sphere (center, radius, color);
+			scene_objects.push_back(dynamic_cast<Object*>(S));
+		}
+        else if (type == "plan"){
+            Vect normal = stringToVector(objects_json[i]["normal"].string_value());
+            double distance = objects_json[i]["distance"].number_value();
+            Plane *P = new Plane(normal, distance, color);
+            scene_objects.push_back(dynamic_cast<Object*>(P));
+        }
+		
+    }
+    S.light_sources = light_sources;
+    S.scene_objects = scene_objects;
+    return S;
+
+}
 void savebmp (const char *filename, int w, int h, int dpi, RGBType *data ){
     FILE *f;
     int k = w*h;
@@ -275,18 +356,26 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
 }
 
 int thisone;
-
-int main(int argc, char *argv[])
-{
+/*
     std::chrono::time_point < std::chrono::system_clock > start, end;
     int Width=1000, Height=700, dpi = 72;
-    int n = Width*Height;
     double aspect_ratio= double(Width)/(double)Height;
     double ambientlight = 0.2;
     double accuracy = 0.000001;
-    int aadepth = 4;        //aliasing
+    int aadepth = 1;        //aliasing
     double aathreshold = 0.1;   //aliasing
+*/
+
+RGBType* Pixel_calcul(int Width, int Height,int aadepth, int accuracy,double aspect_ratio, int firstRow,int endRow, string path){
+    int n = Width*Height;
     RGBType *pixels = new RGBType[n];
+    double ambientlight = 0.2;
+
+    
+
+    int thisone, aa_index;
+    double xamnt, yamnt;    //this variables are to allow the rays to go to the sides where the camera is pointing
+    double tempRed, tempGreen, tempBlue;
 
     //coordinate system
     Vect O (0,0,0);
@@ -317,35 +406,25 @@ int main(int argc, char *argv[])
     Vect light_position (-7,10,-10);
     light scene_light (light_position, white_light);
     vector <Source*> light_sources;
-    light_sources.push_back(dynamic_cast<Source*>(&scene_light));
-
-    //scene objects
-    Sphere scene_sphere (O, 1, pretty_green);
-    Sphere scene_sphere_2 (X.vectMul(3), 1, steel);
-    Plane scene_plane (Y, -1, maroon);
+    //light_sources.push_back(dynamic_cast<Source*>(&scene_light));
 
     //vector to store the objects of the scene nad loop through them
     vector<Object*> scene_objects;
-
+    Scene S = jsonReader(path);
+    light_sources = S.light_sources;
+    scene_objects = S.scene_objects;
     //this is how we add objects to the vector
+    /*
     scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
     scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere_2));
     scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
-
-    int thisone, aa_index;
-    double xamnt, yamnt;    //this variables are to allow the rays to go to the sides where the camera is pointing
-    double tempRed, tempGreen, tempBlue;
-    
-    // Nested loops to give each pixel a color
-    //#pragma omp parallel for
-
-
-    for (int x = 0; x < Width; x++)     
+    */
+    for (int y = firstRow; y < endRow; y++)
     {
-        for (int y = 0; y < Height; y++)
-        {
-            thisone = y*Width + x;      //determine coordenates of an individual pixel
 
+        for (int x = 0; x < Width; x++)     
+        {
+            thisone = (y - firstRow)*Width + x;      //determine coordenates of an individual pixel
 
             // start with a blank pixel
             double tempRed[aadepth*aadepth];
@@ -463,11 +542,115 @@ int main(int argc, char *argv[])
             pixels[thisone].g = avggreen;
             pixels[thisone].b = avgblue;
         }
-    }    
-    //Save the image
-    savebmp("Scene_no_aliasing.bmp",Width,Height,dpi,pixels);
+    }
+    return pixels;
+}
 
+
+int main(int argc, char *argv[])
+{
+    
+    argh::parser cmdl(argv);
+    std::string path;
+    cmdl({"-s", "--scene"}, "scene.json") >> path;
+
+    std::chrono::time_point < std::chrono::system_clock > start, end;
+    const int Width=700, Height=900, dpi = 72;
+    float aspect_ratio= float(Width)/(float)Height;
+    float ambientlight = 0.2;
+    float accuracy = 0.0001;
+    int aadepth = 2;        //aliasing
+    float aathreshold = 0.1;   //aliasing
+
+    int n = Width*Height;
+
+    RGBType *pixels = new RGBType[n];
+
+
+
+    
+    MPI_Init(&argc,&argv);
+    int size, rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    MPI_Status status;
+
+    int local_Height = Height/size;
+    int firstrow = (size-(size-rank+1)) * local_Height;
+    int endrow = firstrow + local_Height;
+ 
+    
+    int local_n = local_Height*Width;
+    RGBType *local_pixels = new RGBType[local_n];
+
+    local_pixels = Pixel_calcul(Width,Height,aadepth,accuracy,aspect_ratio,firstrow,endrow,path);
+
+    float red_pixels[local_n];
+    float blue_pixels[local_n];
+    float green_pixels[local_n];
+
+
+    for(int i=0;i<local_n;i++){
+
+        red_pixels[i] = local_pixels[i].r;
+        blue_pixels[i] = local_pixels[i].b;
+        green_pixels[i] = local_pixels[i].g;
+    }
+
+    if (rank == 0){
+    
+        float total_red_pixels[n];
+        float total_blue_pixels[n];
+        float total_green_pixels[n];
+
+        //Get all the pixels
+        MPI_Gather( red_pixels,local_n, MPI_FLOAT,
+                total_red_pixels, local_n, MPI_FLOAT,
+                0,
+                MPI_COMM_WORLD               
+               );
+        MPI_Gather( green_pixels,local_n, MPI_FLOAT,
+                total_green_pixels, local_n, MPI_FLOAT,
+                0,
+                MPI_COMM_WORLD               
+               );
+        MPI_Gather( blue_pixels,local_n, MPI_FLOAT,
+                total_blue_pixels, local_n, MPI_FLOAT,
+                0,
+                MPI_COMM_WORLD               
+               );
+        for(int i=0; i < n; i++){
+            pixels[i].r = total_red_pixels[i];
+            pixels[i].b = total_blue_pixels[i];
+            pixels[i].g = total_green_pixels[i];
+
+        }
+
+        //save the image
+        savebmp("Scene.bmp",Width,Height,dpi,pixels);
+
+    }else{
+        MPI_Gather( red_pixels,local_n, MPI_FLOAT,
+                NULL, local_n, MPI_FLOAT,
+                0,
+                MPI_COMM_WORLD               
+               );
+        MPI_Gather( green_pixels,local_n, MPI_FLOAT,
+                NULL, local_n, MPI_FLOAT,
+                0,
+                MPI_COMM_WORLD               
+               );
+        MPI_Gather( blue_pixels,local_n, MPI_FLOAT,
+                NULL, local_n, MPI_FLOAT,
+                0,
+                MPI_COMM_WORLD               
+               );
+    }
+
+    delete local_pixels;
     delete pixels;
 
+    MPI_Finalize();
     return 0;
 }
