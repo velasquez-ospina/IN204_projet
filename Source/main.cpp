@@ -549,13 +549,14 @@ RGBType* Pixel_calcul(int Width, int Height,int aadepth, int accuracy,double asp
 
 int main(int argc, char *argv[])
 {
+    std::chrono::time_point < std::chrono::system_clock > start_calcul, end_calcul, start_program, end_program;
     
     argh::parser cmdl(argv);
     std::string path;
     cmdl({"-s", "--scene"}, "scene.json") >> path;
 
-    std::chrono::time_point < std::chrono::system_clock > start, end;
-    const int Width=600, Height=400, dpi = 72;
+
+    const int Width=600, Height=500, dpi = 72;
     float aspect_ratio= float(Width)/(float)Height;
     float ambientlight = 0.2;
     float accuracy = 0.0001;
@@ -570,21 +571,31 @@ int main(int argc, char *argv[])
 
     
     MPI_Init(&argc,&argv);
+    start_program = std::chrono::system_clock::now();
+
     int size, rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+
     MPI_Status status;
 
     int local_Height = Height/size;
-    int firstrow = (size-(size-rank+1)) * local_Height;
+    int firstrow = (size-(size-rank)) * local_Height;
     int endrow = firstrow + local_Height;
  
-    
     int local_n = local_Height*Width;
     RGBType *local_pixels = new RGBType[local_n];
 
+    start_calcul = std::chrono::system_clock::now();
+
     local_pixels = Pixel_calcul(Width,Height,aadepth,accuracy,aspect_ratio,firstrow,endrow,path);
+
+
+    end_calcul = std::chrono::system_clock::now();
+    std::chrono::duration < double >elapsed_seconds = end_calcul - start_calcul;
+    std::cout << "Temps de calcul: " << elapsed_seconds.count() << " secondes, tache : " << rank << "\n";
+
 
     float red_pixels[local_n];
     float blue_pixels[local_n];
@@ -629,6 +640,9 @@ int main(int argc, char *argv[])
 
         //save the image
         savebmp("Scene.bmp",Width,Height,dpi,pixels);
+        end_program = std::chrono::system_clock::now();
+        std::chrono::duration < double >total_time = end_program - start_program;
+        std::cout << "Temps de calcul: " << total_time.count() << " secondes\n";
 
     }else{
         MPI_Gather( red_pixels,local_n, MPI_FLOAT,
