@@ -1,6 +1,6 @@
 
 output: main.o
-	mpirun -np 12 a.out
+	mpirun -np 8 a.out
 
 main.o: main.cpp
 	mpic++ main.cpp json11.cpp

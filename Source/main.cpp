@@ -23,19 +23,18 @@
 #include "Sphere.hpp"
 #include "json11.hpp"
 #include "argh.hpp"
-/*
-  std::chrono::time_point < std::chrono::system_clock > start, end;
-  start = std::chrono::system_clock::now();
 
-  end = std::chrono::system_clock::now();
-  std::chrono::duration < double >elapsed_seconds = end - start;
-  std::cout << "Temps dans le boucle : " << elapsed_seconds.count() << " secondes\n";
-
-*/
 
 using namespace std;
 using namespace json11;
 
+
+/**
+ * Structure qui contient les trois parametres d'un RGB
+ * r = rouge
+ * g = green
+ * b = blue
+ */
 struct RGBType{
     double r;
     double g;
@@ -186,8 +185,11 @@ void savebmp (const char *filename, int w, int h, int dpi, RGBType *data ){
     //fclose(f);
 }
 
+
+
 int winningObjectIndex(vector<double> object_intersections){
     // return the index of the winning intersection
+
     int index_of_minimum_value;
 
     //prevent unnecessary calculations
@@ -356,15 +358,7 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
 }
 
 int thisone;
-/*
-    std::chrono::time_point < std::chrono::system_clock > start, end;
-    int Width=1000, Height=700, dpi = 72;
-    double aspect_ratio= double(Width)/(double)Height;
-    double ambientlight = 0.2;
-    double accuracy = 0.000001;
-    int aadepth = 1;        //aliasing
-    double aathreshold = 0.1;   //aliasing
-*/
+
 
 RGBType* Pixel_calcul(int Width, int Height,int aadepth, int accuracy,double aspect_ratio, int firstRow,int endRow, string path){
     int n = Width*Height;
@@ -395,16 +389,7 @@ RGBType* Pixel_calcul(int Width, int Height,int aadepth, int accuracy,double asp
 
     Camera scene_cam (campos, camdir, camright, camdown);
  
-    //Colors
-    Color white_light (1.0,1.0,1.0,0);
-    Color pretty_green (0.5,1,0.5,0.3);
-    Color steel (0.5, 0.5, 0.5, 0.6);
-    Color black (0,0,0,0);
-    Color maroon (0.5, 0.25, 0,2);
 
-    //Light definition
-    Vect light_position (-7,10,-10);
-    light scene_light (light_position, white_light);
     vector <Source*> light_sources;
     //light_sources.push_back(dynamic_cast<Source*>(&scene_light));
 
@@ -556,11 +541,11 @@ int main(int argc, char *argv[])
     cmdl({"-s", "--scene"}, "scene.json") >> path;
 
 
-    const int Width=600, Height=500, dpi = 72;
+    const int Width=600, Height=400, dpi = 72;
     float aspect_ratio= float(Width)/(float)Height;
     float ambientlight = 0.2;
     float accuracy = 0.0001;
-    int aadepth = 2;        //aliasing
+    int aadepth = 1;        //aliasing
     float aathreshold = 0.1;   //aliasing
 
     int n = Width*Height;
