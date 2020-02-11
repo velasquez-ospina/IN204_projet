@@ -63,11 +63,14 @@ class Scene{
     public:
     std::vector <Source*> light_sources;
     std::vector <Object*> scene_objects;
+    Camera *scene_camera; 
+
 };
 
 Scene jsonReader (string path){
     std::vector <Source*> light_sources;
     std::vector <Object*> scene_objects;
+    std::vector <Camera*> scene_camera;
     Scene S;
 
     light_sources.clear();
@@ -115,8 +118,36 @@ Scene jsonReader (string path){
         }
 		
     }
+
+    //read array of camera
+	Json::array camera_json = scene_json["camera"].array_items();
+    //std::cout <<"num de luzes : " << lights_json.size() << '\n';
+	for (size_t i = 0; i < camera_json.size(); i++){
+        
+        //coordinate system
+        Vect O (0,0,0);
+        Vect X (1,0,0);
+        Vect Y (0,1,0);
+        Vect Z (0,0,1);
+
+		Vect campos = stringToVector(camera_json[i]["position"].string_value());
+		Vect look_at = stringToVector(camera_json[i]["lookat"].string_value());
+
+        Vect diff_btw (campos.getVectX() - look_at.getVectX(),campos.getVectY() - look_at.getVectY(),campos.getVectZ()-look_at.getVectZ());
+        Vect camdir = diff_btw.negative().normalize();
+        Vect camright = Y.crossproduct(camdir).normalize();
+        Vect camdown = camright.crossproduct(camdir);
+
+        Camera *scene_cam = new Camera(campos, camdir, camright, camdown);
+        S.scene_camera = scene_cam;
+	}
+
+
+
     S.light_sources = light_sources;
     S.scene_objects = scene_objects;
+    
+    
     return S;
 
 }
@@ -290,7 +321,7 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
         int index_of_winning_object_with_reflection = winningObjectIndex(reflection_intersections);
 
         if (index_of_winning_object_with_reflection != -1) {
-            //refletion rays missed everything else
+            //if the reflection rays didn't miss
             if (reflection_intersections.at(index_of_winning_object_with_reflection) > accuracy){
                  //determine the position and direction at the point of intersection with the reflection ray
                  //the ray only affects the color of it reflected off something
@@ -353,7 +384,11 @@ Color getColorAt(Vect intersection_position, Vect intersecting_ray_direction, ve
             }
         }
     }
-
+    if(final_color.getColorBlue() >1.0 || final_color.getColorGreen() >1.0 || final_color.getColorRed() >1.0){
+        final_color.setColorRed(1.0);
+        final_color.setColorGreen(1.0);
+        final_color.setColorBlue(1.0);
+    }
     return final_color;
 }
 
@@ -377,7 +412,7 @@ RGBType* Pixel_calcul(int Width, int Height,int aadepth, int accuracy,double asp
     Vect Y (0,1,0);
     Vect Z (0,0,1);
 
-
+/*
 
     //Camera deffinition
     Vect campos (3, 1.5, -4);
@@ -389,7 +424,7 @@ RGBType* Pixel_calcul(int Width, int Height,int aadepth, int accuracy,double asp
 
     Camera scene_cam (campos, camdir, camright, camdown);
  
-
+*/
     vector <Source*> light_sources;
     //light_sources.push_back(dynamic_cast<Source*>(&scene_light));
 
@@ -398,12 +433,11 @@ RGBType* Pixel_calcul(int Width, int Height,int aadepth, int accuracy,double asp
     Scene S = jsonReader(path);
     light_sources = S.light_sources;
     scene_objects = S.scene_objects;
-    //this is how we add objects to the vector
-    /*
-    scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere));
-    scene_objects.push_back(dynamic_cast<Object*>(&scene_sphere_2));
-    scene_objects.push_back(dynamic_cast<Object*>(&scene_plane));
-    */
+    Camera *scene_cam = S.scene_camera;
+    Vect camdir = scene_cam->getCameraDirection();
+    Vect camdown = scene_cam->getCameraDown();
+    Vect camright = scene_cam->getcameraRight();
+    Vect campos = scene_cam->getCameraPosition();
     for (int y = firstRow; y < endRow; y++)
     {
 
@@ -464,7 +498,7 @@ RGBType* Pixel_calcul(int Width, int Height,int aadepth, int accuracy,double asp
                         }
 
                     }
-                    Vect cam_ray_origin = scene_cam.getCameraPosition();    //ray's origin is the same of camera's
+                    Vect cam_ray_origin = scene_cam->getCameraPosition();    //ray's origin is the same of camera's
                     Vect cam_ray_direction = camdir.vectAdd(camright.vectMul(xamnt - 0.5).vectAdd(camdown.vectMul(yamnt - 0.5))).normalize();
 
                     Ray cam_ray (cam_ray_origin, cam_ray_direction);
@@ -544,9 +578,9 @@ int main(int argc, char *argv[])
     const int Width=600, Height=400, dpi = 72;
     float aspect_ratio= float(Width)/(float)Height;
     float ambientlight = 0.2;
-    float accuracy = 0.0001;
-    int aadepth = 1;        //aliasing
-    float aathreshold = 0.1;   //aliasing
+    float accuracy = 0.00001;
+    int aadepth = 1;        //anti-aliasing depth
+    float aathreshold = 0.1;   //anti-aliasing threshold
 
     int n = Width*Height;
 
