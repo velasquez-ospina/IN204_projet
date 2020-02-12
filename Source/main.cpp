@@ -50,8 +50,6 @@ int main(int argc, char *argv[])
     RGBType *pixels = new RGBType[n];
 
 
-
-    
     MPI_Init(&argc,&argv);
     start_program = std::chrono::system_clock::now();
 

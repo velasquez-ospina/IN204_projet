@@ -141,10 +141,10 @@ Color calculateColor(Vect intersectionPoint, Vect intersectingRayDirection, vect
                  //determine the position and direction at the point of intersection with the reflection ray
                  //the ray only affects the color of it reflected off something
 
-                 Vect reflection_intersectionPoint = intersectionPoint.vectAdd(reflection_direction.vectMul(reflectionIntersections.at(indexOfFirstObject)));
-                 Vect reflection_intersection_ray_direction = reflection_direction;
+                 Vect reflectionIntersectionPoint = intersectionPoint.vectAdd(reflection_direction.vectMul(reflectionIntersections.at(indexOfFirstObject)));
+                 Vect reflectionIntersectionDirection = reflection_direction;
 
-                 Color reflection_intersectionColor = calculateColor(reflection_intersectionPoint, reflection_intersection_ray_direction, sceneObjects, indexOfFirstObject, lights, accuracy, ambientlight);
+                 Color reflection_intersectionColor = calculateColor(reflectionIntersectionPoint, reflectionIntersectionDirection, sceneObjects, indexOfFirstObject, lights, accuracy, ambientlight);
                  //we can get reflexions in the reflexions... recursive calls... more calcul time
 
                  finalColor = finalColor.colorAdd(reflection_intersectionColor.colorScalar(closestObjectColor.getColorSpecial()));
