@@ -16,7 +16,7 @@
 			"type": "sphere",
 			"center": "3.0 0.0 0.0",
 			"radius": 1.0,
-			"color": "0.5 0.5 0.5 0.7"
+			"color": "0.5 0.5 0.5 1"
 		},
 		{
 			"type": "plan",
@@ -27,7 +27,7 @@
 	],
 	"camera": [
 		{
-			"position": "3.0 1.5 -4.0",
+			"position": "5.0 1.5 -4.0",
 			"lookat": "0.0 0.0 0.0"
 		}
 	]

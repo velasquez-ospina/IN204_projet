@@ -32,9 +32,10 @@
 using namespace std;
 using namespace json11;
 
-
+/** return the index of the closest intersection. Returns -1 if there are no intersections
+ *  @param object_intersections the vector with all the intersections found for that pixel
+ */
 int findClosestIntersectionIndex(vector<double> object_intersections){
-    // return the index of the winning intersection
 
     int index_of_minimum_value;
 
@@ -45,8 +46,8 @@ int findClosestIntersectionIndex(vector<double> object_intersections){
     }
     else if(object_intersections.size() == 1){
             if (object_intersections.at(0) > 0){
-                //if that intersection is greater than zero then its our index of minimum value
-                return 0; //remember 0 is the index, not the value
+                //if greater than zero then its the index of minimum value
+                return 0;
             }
             else {
                 //otherwise the only intersection is negative
@@ -65,7 +66,7 @@ int findClosestIntersectionIndex(vector<double> object_intersections){
         }
         //then starting from the maximum value find the minimum positive value
         if(max > 0) {
-            //we only want positive intersections
+            //only positive intersections
             index_of_minimum_value = 0;
             for (int index = 0; index < object_intersections.size(); index++){
                 
@@ -87,14 +88,25 @@ int findClosestIntersectionIndex(vector<double> object_intersections){
 
 }
 
+/** Calculate the color of the pixel, taking in count reflections and shadows
+ *  @param intersectionPoint Vector with the position of the intersection within the ray and the object
+ *  @param intersectionRayDirection Direction of the ray 
+ *  @param sceneObjects Vector with the objects in the scene
+ *  @param closestObjectIndex index of the position where is the closest object in the objects's vector
+ *  @param lights vector with the all the light sources
+ *  @param accuracy 
+ *  @param ambientlight scalar that determines the intensity of the light in the scene
+ *  @return the color of the pixel
+ * 
+ */
 Color calculateColor(Vect intersectionPoint, Vect intersectingRayDirection, vector<Object*> sceneObjects, int closestObjectIndex, vector<Source*> lights, double accuracy, double ambientlight){
     
     Color closestObjectColor = sceneObjects.at(closestObjectIndex)->getColor();
     Vect closestObjectNormal = sceneObjects.at(closestObjectIndex)->getNormalAt(intersectionPoint);
     
+    //If the color has the special atribute 2 the color is a black and white floor pattern
     if (closestObjectColor.getColorSpecial() == 2){
         //checkered/tile floor pattern
-        //we give the special atribute 2 the property of being a black and white floor pattern
 
         int square = (int)floor(intersectionPoint.getVectX()) + (int)floor(intersectionPoint.getVectZ()); 
 
@@ -160,7 +172,6 @@ Color calculateColor(Vect intersectionPoint, Vect intersectingRayDirection, vect
         float cosine_angle = closestObjectNormal.dotProduct(light_direction);
 
         if(cosine_angle > 0){
-            //test for shadows
             bool shadowed = false;
             Vect distance_to_light = lights.at(lightIndex)->getLightPosition().vectAdd(intersectionPoint.negative()).normalize();
             float distance_to_light_magnitude = distance_to_light.magnitude();
@@ -183,7 +194,9 @@ Color calculateColor(Vect intersectionPoint, Vect intersectingRayDirection, vect
                 finalColor = finalColor.colorAdd(closestObjectColor.colorMultiply(lights.at(lightIndex)->getLightColor()).colorScalar(cosine_angle));
 
                 if (closestObjectColor.getColorSpecial() > 0 && closestObjectColor.getColorSpecial() <= 1){
-                    //special  [0-1]
+
+                    //calculate the reflection ray's direction
+
                     double dot1 = closestObjectNormal.dotProduct(intersectingRayDirection.negative());
                     Vect scalar1 = closestObjectNormal.vectMul(dot1);
                     Vect add1 = scalar1.vectAdd(intersectingRayDirection);
@@ -207,13 +220,23 @@ Color calculateColor(Vect intersectionPoint, Vect intersectingRayDirection, vect
     return finalColor;
 }
 
-int thisone;
 
-
-RGBType* calculatePixels(int Width, int Height,int aadepth, int accuracy,double aspect_ratio, int firstRow,int endRow, string path){
+/**
+ * Returns an array with the color of each pixel
+ *  @param Width the width of the image
+ *  @param Height the height of the image
+ *  @param aaadepth the anti-aliasing depth
+ *  @param accuracy 
+ *  @param firstRow the first row of the pixels that the process must calculate
+ *  @param endRow the end row of the pixels that the process must calculate
+ *  @param path the path of the .json with the scene
+ *  @return the array with all the pixels
+ */
+RGBType* calculatePixels(int Width, int Height,int aadepth, int accuracy, int firstRow,int endRow, string path){
     int n = Width*Height;
+    float aspect_ratio= float(Width)/(float)Height;
     RGBType *pixels = new RGBType[n];
-    double ambientlight = 0.2;
+    double ambientlight = 0.4;
 
     
 
@@ -366,4 +389,4 @@ RGBType* calculatePixels(int Width, int Height,int aadepth, int accuracy,double 
     return pixels;
 }
 
-#endif _RAY_TRACER_HPP
+#endif //_RAY_TRACER_HPP

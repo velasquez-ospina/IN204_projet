@@ -42,7 +42,10 @@ struct RGBType{
     double g;
     double b; 
 };
-
+/**
+ * Gets the string of the .json with the 3 parameters of a vector and creates a vector with that information.
+ * @param str String with the information of the vector.
+ */
 Vect stringToVector(string str)
 {
 	stringstream ss(str);
@@ -51,7 +54,10 @@ Vect stringToVector(string str)
 	Vect v(x, y, z);
 	return v;
 }
-
+/**
+ * Gets the string of the .json with the information of the color of an object or a light source and tournes it into a color.
+ * @param str String with the information of the color
+ */
 Color stringToColor(string str)
 {
 	stringstream ss(str);
@@ -61,6 +67,9 @@ Color stringToColor(string str)
 	return color;
 }
 
+/**
+ * Class that can save the information of the camera, lights and objects found in the .json.
+ */
 class Scene{
     public:
     std::vector <Source*> lights;
@@ -68,11 +77,12 @@ class Scene{
     Camera *scene_camera; 
 
 };
-
+/** 
+ * Reads the .json with the scene and determines all the objects, light sources and the camera.
+ */
 Scene jsonReader (string path){
     std::vector <Source*> lights;
     std::vector <Object*> sceneObjects;
-    std::vector <Camera*> scene_camera;
     Scene S;
 
     lights.clear();
@@ -80,12 +90,10 @@ Scene jsonReader (string path){
     
     ifstream t(path);
 	string str((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
-    //std::cout << path << '\n';
 	string err;
 	Json scene_json = Json::parse(str, err);
     //read array of lights
 	Json::array lights_json = scene_json["lights"].array_items();
-    //std::cout <<"num de luzes : " << lights_json.size() << '\n';
 	for (size_t i = 0; i < lights_json.size(); i++){
         
 		Vect position = stringToVector(lights_json[i]["position"].string_value());
@@ -153,6 +161,14 @@ Scene jsonReader (string path){
     return S;
 
 }
+
+/** Saves the pixels in a file
+ *  @param filename the name of the file where the pixels will be saved
+ *  @param w the width of the image
+ *  @param h the height of the image
+ *  @param dpi dots per inch rate of the image
+ *  @param data the array with the pixels
+ * */
 void savebmp (const char *filename, int w, int h, int dpi, RGBType *data ){
     FILE *f;
     int k = w*h;
@@ -215,6 +231,5 @@ void savebmp (const char *filename, int w, int h, int dpi, RGBType *data ){
 
     }
 
-    //fclose(f);
 }
-#endif _FILE_MANAGER_HPP
+#endif //_FILE_MANAGER_HPP

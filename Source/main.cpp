@@ -26,9 +26,12 @@
 #include "fileManager.hpp"
 #include "RayTracer.hpp"
 
-
-
-
+/**Ray Tracing project for IN204
+ * ENSTA 2020
+ * Authors: Joao Pedro Araujo Ferreira Campos, David Velasquez Ospina
+ * 
+ * This project reads a scene described in a .json and then utilises a ray-tracing rendering technique to get the color of each pixel and save the result in Scene.bmp
+*/
 int main(int argc, char *argv[])
 {
     std::chrono::time_point < std::chrono::system_clock > start_calcul, end_calcul, start_program, end_program;
@@ -39,11 +42,9 @@ int main(int argc, char *argv[])
 
 
     const int Width=600, Height=400, dpi = 72;
-    float aspect_ratio= float(Width)/(float)Height;
-    float ambientlight = 0.2;
     float accuracy = 0.00001;
-    int aadepth = 1;        //anti-aliasing depth
-    float aathreshold = 0.1;   //anti-aliasing threshold
+    int aadepth = 4;            //anti-aliasing depth
+    float aathreshold = 0.1;            //anti-aliasing threshold
 
     int n = Width*Height;
 
@@ -56,21 +57,17 @@ int main(int argc, char *argv[])
     int size, rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-
     MPI_Status status;
 
     int local_Height = Height/size;
     int firstrow = (size-(size-rank)) * local_Height;
     int endrow = firstrow + local_Height;
- 
     int local_n = local_Height*Width;
     RGBType *local_pixels = new RGBType[local_n];
 
     start_calcul = std::chrono::system_clock::now();
 
-    local_pixels = calculatePixels(Width,Height,aadepth,accuracy,aspect_ratio,firstrow,endrow,path);
-
+    local_pixels = calculatePixels(Width,Height,aadepth,accuracy,firstrow,endrow,path);
 
     end_calcul = std::chrono::system_clock::now();
     std::chrono::duration < double >elapsed_seconds = end_calcul - start_calcul;
